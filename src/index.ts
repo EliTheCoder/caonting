@@ -4,22 +4,28 @@ import {join} from "path";
 import betterLogging from "better-logging";
 betterLogging(console);
 
-if (!existsSync(join(__dirname, "../config.json"))) {
+type CountingData = {
+	count: number;
+	record: number;
+	lastUser: string;
+};
+
+if (!existsSync(join(__dirname, "./config.json"))) {
 	throw new Error("No config.json found");
 }
 
 const {token, channelId, guildId} = JSON.parse(
-	readFileSync(join(__dirname, "../config.json"), "utf8")
+	readFileSync(join(__dirname, "./config.json"), "utf8")
 );
 
 let data = {count: 0, record: 0, lastUser: ""};
-if (existsSync(join(__dirname, "../data.json"))) {
+if (existsSync(join(__dirname, "./data.json"))) {
 	data = JSON.parse(
-		readFileSync(join(__dirname, "../data.json"), "utf8")
-	) as {count: number; record: number; lastUser: string};
+		readFileSync(join(__dirname, "./data.json"), "utf8")
+	) as CountingData;
 } else {
 	writeFileSync(
-		join(__dirname, "../data.json"),
+		join(__dirname, "./data.json"),
 		JSON.stringify({count: 0, record: 0, lastUser: ""}),
 		"utf8"
 	);
@@ -103,11 +109,7 @@ function count(msg: Message) {
 }
 
 function save() {
-	writeFileSync(
-		join(__dirname, "../data.json"),
-		JSON.stringify(data),
-		"utf8"
-	);
+	writeFileSync(join(__dirname, "./data.json"), JSON.stringify(data), "utf8");
 }
 
 client.login(token);
