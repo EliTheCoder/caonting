@@ -1,35 +1,57 @@
-import {Client, ClientOptions, Intents, Message} from "discord.js";
+import {Client, ClientOptions, Intents, Message, Snowflake} from "discord.js";
+import {REST} from "@discordjs/rest";
+import {Routes} from "discord-api-types/v9";
 import {readFileSync, writeFileSync, existsSync} from "fs";
 import {join} from "path";
 import betterLogging from "better-logging";
+import {SlashCommandBuilder} from "@discordjs/builders";
 betterLogging(console);
 
 type CountingData = {
-	count: number;
-	record: number;
-	lastUser: string;
+	[guildId: string]: {
+		[channelId: string]: {
+			count: number;
+			record: number;
+			lastUser: Snowflake;
+		};
+	};
 };
 
 if (!existsSync(join(__dirname, "./config.json"))) {
 	throw new Error("No config.json found");
 }
 
-const {token, channelId, guildId} = JSON.parse(
+const {token, clientId} = JSON.parse(
 	readFileSync(join(__dirname, "./config.json"), "utf8")
 );
 
-let data = {count: 0, record: 0, lastUser: ""};
+let data: CountingData = {};
 if (existsSync(join(__dirname, "./data.json"))) {
 	data = JSON.parse(
 		readFileSync(join(__dirname, "./data.json"), "utf8")
 	) as CountingData;
 } else {
-	writeFileSync(
-		join(__dirname, "./data.json"),
-		JSON.stringify({count: 0, record: 0, lastUser: ""}),
-		"utf8"
-	);
+	writeFileSync(join(__dirname, "./data.json"), JSON.stringify({}), "utf8");
 }
+
+const commands = [
+	new SlashCommandBuilder()
+		.setName("ping")
+		.setDescription("Replies with pong"),
+	new SlashCommandBuilder()
+		.setName("record")
+		.setDescription("Replies with the gulid record"),
+	new SlashCommandBuilder()
+		.setName("count")
+		.setDescription("Replies with the guild count"),
+	new SlashCommandBuilder()
+		.setName("start")
+		.setDescription(
+			"Adds or removes this channel to the list of channels to count"
+		)
+].map(command => command.toJSON());
+
+const rest = new REST({version: "9"}).setToken(token);
 
 const client = new Client({
 	intents: [
@@ -43,8 +65,19 @@ client.once("ready", () => {
 	console.info("Bot is ready.");
 });
 
+client.on("guildCreate", guild => {
+	rest.put(Routes.applicationGuildCommands(clientId, guild.id), {
+		body: commands
+	})
+		.then(() =>
+			console.log("Successfully registered application commands.")
+		)
+		.catch(console.error);
+});
+
 client.on("messageCreate", msg => {
-	if (msg.channel.id !== channelId) return;
+	if (!msg.inGuild()) return;
+	if (data[msg.guildId]?.[msg.channelId] === undefined) return;
 	if (msg.author.bot) return;
 	count(msg);
 	save();
@@ -52,54 +85,86 @@ client.on("messageCreate", msg => {
 
 client.on("interactionCreate", async interaction => {
 	if (!interaction.isCommand()) return;
+	if (!interaction.inGuild()) return;
+
+	const thisData = data[interaction.guildId][interaction.channelId];
 
 	const {commandName} = interaction;
 
 	if (commandName === "ping") {
 		await interaction.reply(`Pong (${client.ws.ping}ms)`);
 	} else if (commandName === "count") {
+		if (data[interaction.guildId]?.[interaction.channelId] === undefined)
+			return interaction.reply("No data for this channel.");
 		if (data.lastUser) {
-			const guild = await client.guilds.fetch(guildId);
+			const guild = await client.guilds.fetch(interaction.guild!.id);
 			await interaction.reply(
-				`The last counted number was **${data.count}** by ${
+				`The last counted number was **${thisData.count}** by ${
 					(
-						await guild.members.fetch(data.lastUser)
+						await guild.members.fetch(thisData.lastUser)
 					).displayName
 				}`
 			);
 		} else {
 			await interaction.reply(
-				`The last counted number was **${data.count}**`
+				`The last counted number was **${thisData.count}**`
 			);
 		}
 	} else if (commandName === "record") {
-		await interaction.reply(`The current record is **${data.record}**`);
+		if (data[interaction.guildId]?.[interaction.channelId] === undefined)
+			return interaction.reply("No data for this channel.");
+		await interaction.reply(`The current record is **${thisData.record}**`);
+	} else if (commandName === "start") {
+		if (data[interaction.guildId] !== undefined) {
+			if (
+				data[interaction.guildId][interaction.channelId] !== undefined
+			) {
+				return interaction.reply(
+					"This channel is already being counted."
+				);
+			} else {
+				data[interaction.guildId][interaction.channelId] = {
+					count: 0,
+					record: 0,
+					lastUser: ""
+				};
+			}
+		} else {
+			data[interaction.guildId] = {
+				[interaction.channelId]: {
+					count: 0,
+					record: 0,
+					lastUser: ""
+				}
+			};
+		}
 	}
 });
 
 function count(msg: Message) {
 	const numberStr = msg.content.match(/^\d+([\s]|$)/);
+	const thisData = data[msg.guildId!][msg.channelId];
 	if (!numberStr) {
 		msg.react("🔤");
 		return;
 	}
 	const number = parseInt(numberStr[0].trim());
-	if (number !== data.count + 1) {
+	if (number !== thisData.count + 1) {
 		msg.react("❌");
-		data.count = 0;
-		data.lastUser = "";
+		thisData.count = 0;
+		thisData.lastUser = "";
 		return msg.reply(
-			`**You failed.** The next number was **${data.count + 1}**`
+			`**You failed.** The next number was **${thisData.count + 1}**`
 		);
 	}
-	if (msg.author.id === data.lastUser) {
+	if (msg.author.id === thisData.lastUser) {
 		msg.react("❌");
-		data.count = 0;
-		data.lastUser = "";
+		thisData.count = 0;
+		thisData.lastUser = "";
 		return msg.reply(`**You failed.** You can't count twice in a row.`);
 	}
-	data.lastUser = msg.author.id;
-	data.count++;
+	thisData.lastUser = msg.author.id;
+	thisData.count++;
 	if (data.count > data.record) {
 		data.record = data.count;
 		return msg.react("☑️");
