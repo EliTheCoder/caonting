@@ -48,6 +48,11 @@ const commands = [
 		.setName("start")
 		.setDescription(
 			"Adds or removes this channel to the list of channels to count"
+		),
+	new SlashCommandBuilder()
+		.setName("stop")
+		.setDescription(
+			"Removes this channel from the list of channels to count"
 		)
 ].map(command => command.toJSON());
 
@@ -144,6 +149,14 @@ client.on("interactionCreate", async interaction => {
 			interaction.reply(
 				"This channel is now being counted. The first number is 1."
 			);
+		}
+		save();
+	} else if (commandName === "stop") {
+		if (data[interaction.guildId] === undefined) {
+			return interaction.reply("This channel is not being counted.");
+		} else {
+			delete data[interaction.guildId][interaction.channelId];
+			interaction.reply("This channel is no longer being counted.");
 		}
 		save();
 	}
