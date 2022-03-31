@@ -186,12 +186,17 @@ function count(msg: Message) {
 	}
 	thisData.lastUser = msg.author.id;
 	thisData.count++;
-	if (data.count > data.record) {
-		data.record = data.count;
-		return msg.react("☑️");
-	} else {
-		return msg.react("✅");
+	let reaction = "✅";
+	if (thisData.count > thisData.record) {
+		thisData.record = thisData.count;
+		reaction = "☑️";
 	}
+	if (thisData.count === 69) reaction = "♋";
+	if (thisData.count === 100) reaction = "💯";
+	if (thisData.count === 420) reaction = "🌿";
+	if (thisData.count === 666) reaction = "💀";
+	if (thisData.count === 1337) reaction = "💩";
+	msg.react(reaction);
 }
 
 function save() {
