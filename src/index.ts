@@ -129,6 +129,9 @@ client.on("interactionCreate", async interaction => {
 					record: 0,
 					lastUser: ""
 				};
+				interaction.reply(
+					"This channel is now being counted. The first number is 1."
+				);
 			}
 		} else {
 			data[interaction.guildId] = {
@@ -138,6 +141,9 @@ client.on("interactionCreate", async interaction => {
 					lastUser: ""
 				}
 			};
+			interaction.reply(
+				"This channel is now being counted. The first number is 1."
+			);
 		}
 		save();
 	}
