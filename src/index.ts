@@ -102,7 +102,7 @@ client.on("interactionCreate", async interaction => {
 	} else if (commandName === "count") {
 		if (data[interaction.guildId]?.[interaction.channelId] === undefined)
 			return interaction.reply("No data for this channel.");
-		if (data.lastUser) {
+		if (thisData.lastUser) {
 			const guild = await client.guilds.fetch(interaction.guild!.id);
 			await interaction.reply(
 				`The last counted number was **${thisData.count}** by ${
