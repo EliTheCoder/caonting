@@ -88,7 +88,7 @@ client.on("interactionCreate", async interaction => {
 	if (!interaction.isCommand()) return;
 	if (!interaction.inGuild()) return;
 
-	const thisData = data[interaction.guildId][interaction.channelId];
+	const thisData = data[interaction.guildId]?.[interaction.channelId];
 
 	const {commandName} = interaction;
 
