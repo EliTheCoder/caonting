@@ -17,12 +17,12 @@ type CountingData = {
 	};
 };
 
-if (!existsSync(join(__dirname, "./config.json"))) {
+if (!existsSync(join(__dirname, "../config.json"))) {
 	throw new Error("No config.json found");
 }
 
 const {token, clientId} = JSON.parse(
-	readFileSync(join(__dirname, "./config.json"), "utf8")
+	readFileSync(join(__dirname, "../config.json"), "utf8")
 );
 
 let data: CountingData = {};
