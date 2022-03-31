@@ -66,6 +66,7 @@ client.once("ready", () => {
 });
 
 client.on("guildCreate", guild => {
+	console.info(`Joined guild ${guild.name}`);
 	rest.put(Routes.applicationGuildCommands(clientId, guild.id), {
 		body: commands
 	})
