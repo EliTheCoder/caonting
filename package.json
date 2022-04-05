@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "tsc --build && node dist/index.js",
 		"build": "tsc --build --verbose",
-		"start": "tsc --build && pm2 start dist/index.js --name caonting --interpreter node --watch"
+		"start": "tsc --build && pm2 start dist/index.js --name caonting --interpreter node"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^0.12.0",
