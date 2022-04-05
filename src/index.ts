@@ -81,6 +81,23 @@ client.on("guildCreate", guild => {
 		.catch(console.error);
 });
 
+client.on("messageDelete", msg => {
+	if (!msg.inGuild()) return;
+	if (data[msg.guildId]?.[msg.channelId] === undefined) return;
+	if (msg.author.bot) return;
+	if (msg.author.id !== data[msg.guildId][msg.channelId].lastUser) return;
+	const numberStr = msg.content.match(/^\d+([\s]|$)/);
+	if (!numberStr) return;
+	const number = parseInt(numberStr[0]);
+	if (number === data[msg.guildId][msg.channelId].count) {
+		msg.channel.send(
+			`<@${
+				msg.author.id
+			}> has deleted their message. The next number is **${number + 1}**.`
+		);
+	}
+});
+
 client.on("messageCreate", msg => {
 	if (!msg.inGuild()) return;
 	if (data[msg.guildId]?.[msg.channelId] === undefined) return;
