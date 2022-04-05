@@ -172,11 +172,11 @@ function count(msg: Message) {
 	const number = parseInt(numberStr[0].trim());
 	if (number !== thisData.count + 1) {
 		msg.react("❌");
-		thisData.count = 0;
-		thisData.lastUser = "";
-		return msg.reply(
+		msg.reply(
 			`**You failed.** The next number was **${thisData.count + 1}**`
 		);
+		thisData.lastUser = "";
+		thisData.count = 0;
 	}
 	if (msg.author.id === thisData.lastUser) {
 		msg.react("❌");
