@@ -40,7 +40,7 @@ const commands = [
 		.setDescription("Replies with pong"),
 	new SlashCommandBuilder()
 		.setName("record")
-		.setDescription("Replies with the gulid record"),
+		.setDescription("Replies with the guild record"),
 	new SlashCommandBuilder()
 		.setName("count")
 		.setDescription("Replies with the guild count"),
