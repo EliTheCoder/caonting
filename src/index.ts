@@ -180,7 +180,7 @@ client.on("interactionCreate", async interaction => {
 });
 
 function count(msg: Message) {
-	const numberStr = msg.content.match(/^\d+([\s]|$)/);
+	const numberStr = msg.content.match(/^\d+/);
 	const thisData = data[msg.guildId!][msg.channelId];
 	if (!numberStr) {
 		msg.react("🔤");
@@ -190,16 +190,18 @@ function count(msg: Message) {
 	if (number !== thisData.count + 1) {
 		msg.react("❌");
 		thisData.lastUser = "";
-		thisData.count = 0;
-		return msg.reply(
+		msg.reply(
 			`**You failed.** The next number was **${thisData.count + 1}**`
 		);
+		thisData.count = 0;
+		return;
 	}
 	if (msg.author.id === thisData.lastUser) {
 		msg.react("❌");
-		thisData.count = 0;
 		thisData.lastUser = "";
-		return msg.reply(`**You failed.** You can't count twice in a row.`);
+		msg.reply(`**You failed.** You can't count twice in a row.`);
+		thisData.count = 0;
+		return;
 	}
 	thisData.lastUser = msg.author.id;
 	thisData.count++;
@@ -210,7 +212,7 @@ function count(msg: Message) {
 	}
 	if (thisData.count === 69) reaction = "♋";
 	if (thisData.count === 100) reaction = "💯";
-	if (thisData.count === 420) reaction = "🌿";
+	if (thisData.count === 420) reaction = "🍃";
 	if (thisData.count === 666) reaction = "💀";
 	if (thisData.count === 1337) reaction = "💩";
 	msg.react(reaction);
