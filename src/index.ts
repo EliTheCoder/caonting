@@ -179,6 +179,8 @@ client.on("interactionCreate", async interaction => {
 	}
 });
 
+let recordBeaten = false
+
 function count(msg: Message) {
 	const numberStr = msg.content.match(/^\d+/);
 	const thisData = data[msg.guildId!][msg.channelId];
@@ -191,9 +193,10 @@ function count(msg: Message) {
 		msg.react("❌");
 		thisData.lastUser = "";
 		msg.reply(
-			`**You failed.** The next number was **${thisData.count + 1}**`
+			`**You failed.** The next number was supposed to be **${thisData.count + 1}**`
 		);
 		thisData.count = 0;
+		recordBeaten = false
 		return;
 	}
 	if (msg.author.id === thisData.lastUser) {
@@ -201,6 +204,7 @@ function count(msg: Message) {
 		thisData.lastUser = "";
 		msg.reply(`**You failed.** You can't count twice in a row.`);
 		thisData.count = 0;
+		recordBeaten = false
 		return;
 	}
 	thisData.lastUser = msg.author.id;
@@ -209,6 +213,10 @@ function count(msg: Message) {
 	if (thisData.count > thisData.record) {
 		thisData.record = thisData.count;
 		reaction = "☑️";
+		if (recordBeaten = false) {
+			recordBeaten = true
+			msg.reply(`**NEW RECORD**`);
+		}
 	}
 	if (thisData.count === 69) reaction = "♋";
 	if (thisData.count === 100) reaction = "💯";
