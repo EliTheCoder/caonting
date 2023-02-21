@@ -34,26 +34,28 @@ if (existsSync(join(__dirname, "./data.json"))) {
 	writeFileSync(join(__dirname, "./data.json"), JSON.stringify({}), "utf8");
 }
 
+const bannedPlayers: string[] = ["280467655541129216"];
+
 const commands = [
 	new SlashCommandBuilder()
-		.setName("ping")
-		.setDescription("Replies with pong"),
+	.setName("ping")
+	.setDescription("Replies with pong"),
 	new SlashCommandBuilder()
-		.setName("record")
-		.setDescription("Replies with the guild record"),
+	.setName("record")
+	.setDescription("Replies with the guild record"),
 	new SlashCommandBuilder()
-		.setName("count")
-		.setDescription("Replies with the guild count"),
+	.setName("count")
+	.setDescription("Replies with the guild count"),
 	new SlashCommandBuilder()
-		.setName("start")
-		.setDescription(
-			"Adds or removes this channel to the list of channels to count"
-		),
+	.setName("start")
+	.setDescription(
+		"Adds or removes this channel to the list of channels to count"
+	),
 	new SlashCommandBuilder()
-		.setName("stop")
-		.setDescription(
-			"Removes this channel from the list of channels to count"
-		)
+	.setName("stop")
+	.setDescription(
+		"Removes this channel from the list of channels to count"
+	)
 ].map(command => command.toJSON());
 
 const rest = new REST({version: "9"}).setToken(token);
@@ -75,10 +77,10 @@ client.on("guildCreate", guild => {
 	rest.put(Routes.applicationGuildCommands(clientId, guild.id), {
 		body: commands
 	})
-		.then(() =>
-			console.log("Successfully registered application commands.")
-		)
-		.catch(console.error);
+	.then(() =>
+	      console.log("Successfully registered application commands.")
+	     )
+	     .catch(console.error);
 });
 
 client.on("messageDelete", msg => {
