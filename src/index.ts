@@ -102,6 +102,7 @@ client.on("messageDelete", msg => {
 client.on("messageCreate", msg => {
 	if (!msg.inGuild()) return;
 	if (data[msg.guildId]?.[msg.channelId] === undefined) return;
+	if (bannedPlayers.includes(msg.authorId)) return;
 	count(msg);
 	save();
 });
