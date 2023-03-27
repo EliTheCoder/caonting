@@ -34,7 +34,7 @@ if (existsSync(join(__dirname, "./data.json"))) {
 	writeFileSync(join(__dirname, "./data.json"), JSON.stringify({}), "utf8");
 }
 
-const bannedPlayers: string[] = ["280467655541129216"];
+const bannedPlayers: string[] = [];
 
 const commands = [
 	new SlashCommandBuilder()
