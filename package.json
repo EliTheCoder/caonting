@@ -4,9 +4,8 @@
 	"main": "index.js",
 	"license": "GPL-3.0",
 	"scripts": {
-		"dev": "tsc --build && node dist/index.js",
 		"build": "tsc --build --verbose",
-		"start": "tsc --build && pm2 restart dist/index.js --name caonting --interpreter node"
+		"start": "tsc --build && node dist/index.js"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^0.12.0",
