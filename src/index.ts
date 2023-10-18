@@ -216,7 +216,7 @@ function count(msg: Message) {
 	if (thisData.count === 420) reaction = "🍃";
 	if (thisData.count === 666) reaction = "💀";
 	if (thisData.count === 911) reaction = "✈";
-	if (thisData.count === 1337) reaction = "💩";
+	if (thisData.count === 1337) reaction = "💻";
 	msg.react(reaction);
 }
 
